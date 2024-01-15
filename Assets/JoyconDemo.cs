@@ -78,7 +78,9 @@ public class JoyconDemo : MonoBehaviour {
 			} else{
 				gameObject.GetComponent<Renderer>().material.color = Color.blue;
 			}
-            gameObject.transform.rotation = orientation;
+
+			gameObject.transform.rotation = new Quaternion(orientation.x, 0, 0, 0);
+
         }
     }
 }

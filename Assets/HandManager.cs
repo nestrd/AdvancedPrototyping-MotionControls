@@ -32,10 +32,15 @@ public class HandManager : MonoBehaviour
 
     private void FixedUpdate()
     {
-        var tempPos_L = leftHand.transform.position + new Vector3(managerMain.j[0].GetAccel().x, managerMain.j[0].GetAccel().z, 0) / 2;
-        var tempPos_R = rightHand.transform.position + new Vector3(managerMain.j[1].GetGyro().x, managerMain.j[1].GetGyro().z, 0) / 2;
+        var tempPos_L = leftHand.transform.position + new Vector3(RoundToTwoPlaces(managerMain.j[0].GetAccel().x), RoundToTwoPlaces(managerMain.j[0].GetAccel().z), 0) / 2;
+        var tempPos_R = rightHand.transform.position + new Vector3(RoundToTwoPlaces(managerMain.j[1].GetGyro().x), RoundToTwoPlaces(managerMain.j[1].GetGyro().z), 0) / 2;
         
         leftHand.transform.position = tempPos_L;
         rightHand.transform.position = tempPos_R;
+    }
+
+    private float RoundToTwoPlaces(float input)
+    {
+        return Mathf.Round(input * 100f) / 100f;
     }
 }
