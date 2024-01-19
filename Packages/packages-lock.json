@@ -69,6 +69,13 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
+    "com.unity.nuget.mono-cecil": {
+      "version": "1.11.4",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
     "com.unity.performance.profile-analyzer": {
       "version": "1.2.2",
       "depth": 1,
@@ -143,6 +150,15 @@
         "com.unity.modules.jsonserialize": "1.0.0"
       },
       "url": "https://packages.unity.com"
+    },
+    "jp.ayutaz.simplefoldericon": {
+      "version": "https://github.com/ayutaz/SimpleFolderIcon.git?path=/Assets/SimpleFolderIcon",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.nuget.mono-cecil": "1.10.2"
+      },
+      "hash": "2283da0d7a7917867aff62bb211314e025f48063"
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",
