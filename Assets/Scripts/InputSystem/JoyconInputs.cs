@@ -24,7 +24,7 @@ public class JoyconInputs : MonoBehaviour
         m_joyconR = m_joycons.Find( c => !c.isLeft );
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         m_pressedButtonL = null;
         m_pressedButtonR = null;
@@ -51,5 +51,6 @@ public class JoyconInputs : MonoBehaviour
         {
             m_joyconR.SetRumble( 160, 320, 0.6f, 200 );
         }
+
     }
 }

@@ -32,7 +32,7 @@ public class MenuManager : MonoBehaviour
             {
                 leftIcon.sprite = leftActive;
                 leftIcon.GetComponent<Animator>().SetBool("Play", true);
-                inputs.m_joyconL.SetRumble(0, 99, 0.501F, 0);
+                inputs.m_joyconL.SetRumble(160, 320, 0.6f, 200);
                 audioL.enabled = true;
             }
             else
@@ -46,7 +46,7 @@ public class MenuManager : MonoBehaviour
             {
                 rightIcon.sprite = rightActive;
                 rightIcon.GetComponent<Animator>().SetBool("Play", true);
-                inputs.m_joyconR.SetRumble(0, 99, 0.501F, 0);
+                inputs.m_joyconR.SetRumble(160, 320, 0.6f, 200);
                 audioR.enabled = true;
             }
             else
