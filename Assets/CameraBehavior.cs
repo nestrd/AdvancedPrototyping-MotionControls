@@ -3,16 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class HandController : MonoBehaviour
+public class CameraBehavior : MonoBehaviour
 {
 
-    public void GrabWithHand()
+    void Update()
     {
-
-    }
-
-    public void DropWithHand()
-    {
-
     }
 }
