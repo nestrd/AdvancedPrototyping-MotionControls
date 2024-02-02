@@ -22,8 +22,6 @@ public class PlayerController : MonoBehaviour
         inputs = GetComponent<JoyconInputs>();
         playerRB = GetComponent<Rigidbody>();
 
-        //inputs.gyro = new Vector3(0, 0, 0);
-        //accel = new Vector3(0, 0, 0);
     }
 
     void FixedUpdate()
@@ -35,10 +33,10 @@ public class PlayerController : MonoBehaviour
                 Debug.Log("Interact button pressed");
             }
 
-
             UpdateLook();
             UpdateMovement();
-            UpdateArms();
+            UpdateHands();
+            ResetHandPositions();
 
         }
 
@@ -50,35 +48,45 @@ public class PlayerController : MonoBehaviour
 
         inputs.m_joyconR.Recenter();
 
-        var inputX = inputs.m_joyconR.GetStick()[1] * Time.deltaTime * cameraSensitivity;
-        var inputY = inputs.m_joyconR.GetStick()[0] * Time.deltaTime * cameraSensitivity;
+        float inputX = inputs.m_joyconR.GetStick()[1] * Time.deltaTime * cameraSensitivity * 5;
+        float inputY = inputs.m_joyconR.GetStick()[0] * Time.deltaTime * cameraSensitivity * 5;
         xRot += inputX;
         yRot -= inputY;
 
-        playerCamera.transform.rotation = Quaternion.Euler(-xRot, -yRot, 0); //cam
+        playerCamera.transform.rotation = Quaternion.Euler(Mathf.Clamp(-xRot, -90f, 90f), -yRot, 0); //cam
         transform.rotation = Quaternion.Euler(0, -yRot, 0); //body
 
-        Mathf.Clamp(yRot, -90f, 90f);
     }
 
     private void UpdateMovement()
     {
-        var direction = (playerRB.transform.forward * inputs.m_joyconL.GetStick()[1]) + (playerRB.transform.right * inputs.m_joyconL.GetStick()[0]);
+        Vector3 direction = (playerRB.transform.forward * inputs.m_joyconL.GetStick()[1]) + (playerRB.transform.right * inputs.m_joyconL.GetStick()[0]);
 
-        playerRB.AddForce(direction * movementSpeed * Time.deltaTime * 2000, ForceMode.Force);
-        if (direction.magnitude > 1f)
-        {
-            direction = direction.normalized * movementSpeed;
-        }
+        playerRB.AddForce((direction.normalized) * movementSpeed * Time.deltaTime * 2000, ForceMode.Force);
     }
 
-    private void UpdateArms()
+    private void UpdateHands()
     {
-        Quaternion rotL = Quaternion.Euler(inputs.m_joyconL.GetGyro().z, inputs.m_joyconL.GetGyro().x, inputs.m_joyconL.GetGyro().y);
+        float zRotL = inputs.m_joyconL.GetGyro().z;
+        float yRotL = inputs.m_joyconL.GetGyro().y;
+        Quaternion rotL = Quaternion.Euler(zRotL, 0, yRotL);
         armLeft.transform.rotation = armLeft.transform.rotation * rotL;
 
-        Quaternion rotR = Quaternion.Euler(inputs.m_joyconR.GetGyro().z, -inputs.m_joyconR.GetGyro().x, -inputs.m_joyconR.GetGyro().y);
+        float zRotR = -inputs.m_joyconR.GetGyro().z;
+        float yRotR = -inputs.m_joyconR.GetGyro().y;
+        Quaternion rotR = Quaternion.Euler(zRotR, 0, yRotR);
         armRight.transform.rotation = armRight.transform.rotation * rotR;
+        
+    }
+
+    private void ResetHandPositions() // Does not work.
+    {
+        if (inputs.m_pressedButtonL == Joycon.Button.CAPTURE || inputs.m_pressedButtonL == Joycon.Button.HOME)
+        {
+            armLeft.transform.rotation = new Quaternion(0, -90, 90, 0);
+            armRight.transform.rotation = new Quaternion(0, 90, -90, 0);
+        }
+
     }
 }
 

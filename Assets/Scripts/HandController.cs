@@ -64,12 +64,17 @@ public class HandController : MonoBehaviour
     {
         if (heldObject != null)
         {
-            heldObject.gameObject.transform.position = handPivot.transform.position;
+            heldObject.GetComponent<Rigidbody>().isKinematic = true;
+            heldObject.GetComponent<Rigidbody>().MovePosition(handPivot.transform.position);
         }
     }
 
     public void DropWithHand()
     {
-
+        if (heldObject != null)
+        {
+            heldObject.GetComponent<Rigidbody>().isKinematic = false;
+        }
     }
+
 }
