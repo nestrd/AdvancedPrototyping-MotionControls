@@ -66,6 +66,8 @@ public class HandController : MonoBehaviour
         {
             heldObject.GetComponent<Rigidbody>().isKinematic = true;
             heldObject.GetComponent<Rigidbody>().MovePosition(handPivot.transform.position);
+            Physics.IgnoreLayerCollision(6, 7, true);
+            Physics.IgnoreLayerCollision(6, 8, true);
         }
     }
 
@@ -74,6 +76,8 @@ public class HandController : MonoBehaviour
         if (heldObject != null)
         {
             heldObject.GetComponent<Rigidbody>().isKinematic = false;
+            Physics.IgnoreLayerCollision(6, 7, false);
+            Physics.IgnoreLayerCollision(6, 8, false);
         }
     }
 
