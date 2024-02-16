@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class PlayerController : MonoBehaviour, IInteractable
+public class PlayerController : MonoBehaviour
 {
     [HideInInspector] public JoyconInputs inputs;
     [SerializeField] private Rigidbody playerRB;
     [Range(0.0f, 100.0f)] public float cameraSensitivity = 2.0f;
-    [Range(0.0f, 100.0f)] public float movementSpeed = 2.0f;
+    [Range(0.0f, 100.0f)] public float movementSpeed = 50.0f;
     [SerializeField] private GameObject playerCamera;
     [SerializeField] private Transform playerCameraPos;
     private float xRot;
@@ -26,7 +26,7 @@ public class PlayerController : MonoBehaviour, IInteractable
 
     void FixedUpdate()
     {
-        if (inputs.m_joycons != null)
+        if (inputs.m_joycons != null && inputs.m_joyconL != null) // remove second half if broken!
         {
             if (inputs.m_pressedButtonR == Joycon.Button.DPAD_RIGHT)
             {
@@ -46,7 +46,7 @@ public class PlayerController : MonoBehaviour, IInteractable
     {
         //playerCamera.transform.position = playerCameraPos.position;
 
-        inputs.m_joyconR.Recenter();
+        //inputs.m_joyconR.Recenter();
 
         float inputX = inputs.m_joyconR.GetStick()[1] * Time.deltaTime * cameraSensitivity * 5;
         float inputY = inputs.m_joyconR.GetStick()[0] * Time.deltaTime * cameraSensitivity * 5;
@@ -62,7 +62,7 @@ public class PlayerController : MonoBehaviour, IInteractable
     {
         Vector3 direction = (playerRB.transform.forward * inputs.m_joyconL.GetStick()[1]) + (playerRB.transform.right * inputs.m_joyconL.GetStick()[0]);
 
-        playerRB.AddForce((direction.normalized) * movementSpeed * Time.deltaTime * 2000, ForceMode.Force);
+        playerRB.AddForce((direction.normalized) * movementSpeed * Time.deltaTime * 10000, ForceMode.Force);
     }
 
     private void UpdateHands()
@@ -89,14 +89,5 @@ public class PlayerController : MonoBehaviour, IInteractable
 
     }
 
-    public void Activate()
-    {
-        Debug.Log("Player entered interaction");
-    }
-
-    public void Deactivate()
-    {
-        Debug.Log("Player exited interaction");
-    }
 }
 

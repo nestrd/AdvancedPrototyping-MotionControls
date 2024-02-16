@@ -1,15 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class HandController : MonoBehaviour
 {
+
     private PlayerController playerController;
 
     public GameObject heldObject;
     public GameObject handPivot;
-    bool leftGrabbing;
-    bool rightGrabbing;
     [SerializeField] private bool isLeft;
 
     private void Awake()
@@ -19,42 +20,38 @@ public class HandController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if(isLeft)
+        if (playerController.inputs.m_pressedButtonL == Joycon.Button.SHOULDER_2 && isLeft)
         {
-            if (playerController.inputs.m_pressedButtonL == Joycon.Button.SHOULDER_2)
-            {
-                leftGrabbing = true;
-                Debug.Log("Button pressed");
-                GrabWithHand();
-            }
-            else
-            {
-                leftGrabbing = false;
-                DropWithHand();
-            }
-        }
+            Debug.Log("Button pressed");
+            GrabWithHand();
 
-        if (!isLeft)
+        }
+        else
         {
-            if (playerController.inputs.m_pressedButtonR == Joycon.Button.SHOULDER_2)
-            {
-                rightGrabbing = true;
-                GrabWithHand();
-            }
-            else
-            {
-                rightGrabbing = false;
-                DropWithHand();
-            }
+            DropWithHand();
+        }
+        if (playerController.inputs.m_pressedButtonR == Joycon.Button.SHOULDER_2 && !isLeft)
+        {
+            Debug.Log("Button pressed");
+            GrabWithHand();
+        }
+        else
+        {
+            DropWithHand();
+        }
+        if (playerController.inputs.m_pressedButtonL == Joycon.Button.SHOULDER_1 && isLeft)
+        {
+            GoHere();
         }
     }
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.gameObject.CompareTag("Grabbable") && leftGrabbing || rightGrabbing)
+        if (other.gameObject.CompareTag("Grabbable"))
         {
             heldObject = other.gameObject;
-        } else
+        }
+        else
         {
             heldObject = null;
         }
@@ -62,12 +59,17 @@ public class HandController : MonoBehaviour
 
     public void GrabWithHand()
     {
-        if (heldObject != null)
+        var newGrab = false;
+
+        if (heldObject != null && !newGrab)
         {
             heldObject.GetComponent<Rigidbody>().isKinematic = true;
             heldObject.GetComponent<Rigidbody>().MovePosition(handPivot.transform.position);
-            Physics.IgnoreLayerCollision(6, 7, true);
-            Physics.IgnoreLayerCollision(6, 8, true);
+            //heldObject.transform.parent = handPivot.transform;
+            Physics.IgnoreCollision(heldObject.GetComponent<BoxCollider>(), playerController.GetComponent<CapsuleCollider>());
+            heldObject.GetComponent<IInteractable>().Activate();
+            heldObject.SendMessage("Activate");
+            newGrab = true;
         }
     }
 
@@ -76,9 +78,21 @@ public class HandController : MonoBehaviour
         if (heldObject != null)
         {
             heldObject.GetComponent<Rigidbody>().isKinematic = false;
-            Physics.IgnoreLayerCollision(6, 7, false);
-            Physics.IgnoreLayerCollision(6, 8, false);
+            //heldObject.transform.parent = null;
+            heldObject.GetComponent<IInteractable>().Deactivate();
         }
     }
 
+    public void GoHere()
+    {
+        var agent = FindObjectOfType<AiController>();
+        RaycastHit ray;
+
+        if (Physics.Raycast(handPivot.transform.position, handPivot.transform.right, out ray, 100.0F, 1))
+        {
+            Debug.DrawLine(handPivot.transform.position, handPivot.transform.right * 100.0F, Color.green, 5.0F);
+            agent.AgentGoTo(ray.transform.position);
+        }
+    }
 }
+

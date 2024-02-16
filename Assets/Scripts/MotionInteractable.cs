@@ -11,23 +11,23 @@ public interface IInteractable
 public class MotionInteractable : MonoBehaviour, IInteractable
 {
 
+    [SerializeField] private GameObject UiPrompt;
+    private GameObject m_UiPrompt;
+
     private void Awake()
     {
-        
-    }
-
-    private void OnTriggerStay(Collider other)
-    {
-        
+        Physics.IgnoreLayerCollision(6, 8, true);
     }
 
     public void Activate()
     {
         Debug.Log("Activated interactable");
+        m_UiPrompt = Instantiate(UiPrompt);
     }
 
     public void Deactivate()
     {
         Debug.Log("Deactivated interactable");
+        Destroy(m_UiPrompt);
     }
 }
