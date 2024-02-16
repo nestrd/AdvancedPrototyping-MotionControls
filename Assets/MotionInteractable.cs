@@ -2,7 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MotionInteractable : MonoBehaviour
+public interface IInteractable
+{
+    void Activate();
+    void Deactivate();
+}
+
+public class MotionInteractable : MonoBehaviour, IInteractable
 {
 
     private void Awake()
@@ -13,5 +19,15 @@ public class MotionInteractable : MonoBehaviour
     private void OnTriggerStay(Collider other)
     {
         
+    }
+
+    public void Activate()
+    {
+        Debug.Log("Activated interactable");
+    }
+
+    public void Deactivate()
+    {
+        Debug.Log("Deactivated interactable");
     }
 }

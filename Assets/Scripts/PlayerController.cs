@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IInteractable
 {
     [HideInInspector] public JoyconInputs inputs;
     [SerializeField] private Rigidbody playerRB;
@@ -87,6 +87,16 @@ public class PlayerController : MonoBehaviour
             armRight.transform.rotation = new Quaternion(0, 90, -90, 0);
         }
 
+    }
+
+    public void Activate()
+    {
+        Debug.Log("Player entered interaction");
+    }
+
+    public void Deactivate()
+    {
+        Debug.Log("Player exited interaction");
     }
 }
 
