@@ -66,7 +66,7 @@ public class HandController : MonoBehaviour
             heldObject.GetComponent<Rigidbody>().isKinematic = true;
             heldObject.GetComponent<Rigidbody>().MovePosition(handPivot.transform.position);
             //heldObject.transform.parent = handPivot.transform;
-            Physics.IgnoreCollision(heldObject.GetComponent<BoxCollider>(), playerController.GetComponent<CapsuleCollider>());
+            Physics.IgnoreCollision(heldObject.GetComponent<BoxCollider>(), playerController.GetComponent<CharacterController>());
             heldObject.GetComponent<IInteractable>().Activate();
             heldObject.SendMessage("Activate");
             newGrab = true;
@@ -79,7 +79,8 @@ public class HandController : MonoBehaviour
         {
             heldObject.GetComponent<Rigidbody>().isKinematic = false;
             //heldObject.transform.parent = null;
-            heldObject.GetComponent<IInteractable>().Deactivate();
+            //heldObject.GetComponent<IInteractable>().Deactivate();
+            heldObject.SendMessage("Deactivate");
         }
     }
 
