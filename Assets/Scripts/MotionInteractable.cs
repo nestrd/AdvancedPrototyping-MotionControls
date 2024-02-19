@@ -6,13 +6,16 @@ public interface IInteractable
 {
     void Activate();
     void Deactivate();
+
+
 }
 
 public class MotionInteractable : MonoBehaviour, IInteractable
 {
 
     [SerializeField] private GameObject UiPrompt;
-    private GameObject m_UiPrompt;
+    private GameObject uiPrompt_temp;
+    private int uiCount = 0;
 
     private void Awake()
     {
@@ -22,12 +25,17 @@ public class MotionInteractable : MonoBehaviour, IInteractable
     public void Activate()
     {
         Debug.Log("Activated interactable");
-        m_UiPrompt = Instantiate(UiPrompt);
+        if(uiCount == 0)
+        {
+            uiPrompt_temp = Instantiate(UiPrompt);
+            uiCount += 1;
+        }
     }
 
     public void Deactivate()
     {
         Debug.Log("Deactivated interactable");
-        Destroy(m_UiPrompt);
+        Destroy(uiPrompt_temp);
+        uiCount = 0;
     }
 }

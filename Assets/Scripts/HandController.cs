@@ -39,10 +39,10 @@ public class HandController : MonoBehaviour
         {
             DropWithHand();
         }
-        if (playerController.inputs.m_pressedButtonL == Joycon.Button.SHOULDER_1 && isLeft)
-        {
-            GoHere();
-        }
+        //if (playerController.inputs.m_pressedButtonL == Joycon.Button.SHOULDER_1 && isLeft)
+        //{
+        //    GoHere();
+        //}
     }
 
     private void OnTriggerStay(Collider other)
@@ -65,7 +65,7 @@ public class HandController : MonoBehaviour
         {
             heldObject.GetComponent<Rigidbody>().isKinematic = true;
             heldObject.GetComponent<Rigidbody>().MovePosition(handPivot.transform.position);
-            //heldObject.transform.parent = handPivot.transform;
+            //heldObject.transform.SetParent(handPivot.transform, false);
             Physics.IgnoreCollision(heldObject.GetComponent<BoxCollider>(), playerController.GetComponent<CharacterController>());
             heldObject.GetComponent<IInteractable>().Activate();
             heldObject.SendMessage("Activate");
@@ -88,11 +88,20 @@ public class HandController : MonoBehaviour
     {
         var agent = FindObjectOfType<AiController>();
         RaycastHit ray;
+        int instantiateCount = 0;
 
-        if (Physics.Raycast(handPivot.transform.position, handPivot.transform.right, out ray, 100.0F, 1))
+        if (Physics.Raycast(transform.position, transform.right, out ray, 100.0F, 9))
         {
-            Debug.DrawLine(handPivot.transform.position, handPivot.transform.right * 100.0F, Color.green, 5.0F);
+            Debug.DrawLine(transform.position, -transform.up * 100.0F, Color.green, 5.0F);
+            Debug.DrawLine(transform.position, transform.forward * 100.0F, Color.red, 5.0F);
+            Debug.DrawLine(transform.position, transform.right * 100.0F, Color.blue, 5.0F);
+
             agent.AgentGoTo(ray.transform.position);
+            if(instantiateCount == 0)
+            {
+                //Instantiate(pingToken, ray.transform);
+                instantiateCount += 1;
+            }
         }
     }
 }

@@ -5,23 +5,31 @@ using UnityEngine.Events;
 
 public class PlayerController : MonoBehaviour
 {
+
     [HideInInspector] public JoyconInputs inputs;
-    [SerializeField] private Rigidbody playerRB;
-    [Range(0.0f, 100.0f)] public float cameraSensitivity = 2.0f;
-    [Range(0.0f, 100.0f)] public float movementSpeed = 50.0f;
+    
+    // Player camera
     private GameObject playerCamera;
     [SerializeField] private Transform playerCameraPos;
-    private float xRot;
-    private float yRot;
+    [Range(0.0f, 100.0f)] public float cameraSensitivity = 2.0f;
+    private float xLookRot;
+    private float yLookRot;
 
-    [SerializeField] private GameObject armLeft;
-    [SerializeField] private GameObject armRight;
+    // Player physics
     private CharacterController charController;
+    [Range(0.0f, 100.0f)] public float movementSpeed = 50.0f;
+
+    // Player arms
+    [SerializeField] private GameObject armLeft;
+    [SerializeField] private GameObject fingersLeft;
+    [SerializeField] private GameObject armRight;
+    [SerializeField] private GameObject pingToken;
+    int pingCount = 0;
+    [HideInInspector] public bool interacting;
 
     void Awake()
     {
         inputs = GetComponent<JoyconInputs>();
-        playerRB = GetComponent<Rigidbody>();
         playerCamera = GetComponentInChildren<Camera>().gameObject;
         charController = GetComponent<CharacterController>();
     }
@@ -35,9 +43,14 @@ public class PlayerController : MonoBehaviour
                 Debug.Log("Interact button pressed");
             }
 
-            UpdateLook();
-            UpdateMovement();
-            UpdateHands();
+            if (!interacting) // When interacting with 'MotionInteractable' objects, look and movement are disabled to prevent frustrating gameplay experiences
+            {
+                UpdateLook();
+                UpdateMovement();
+                GoHerePing();
+            }
+
+            UpdateArmRotations();
             ResetHandPositions();
 
         }
@@ -48,11 +61,11 @@ public class PlayerController : MonoBehaviour
     {
         float inputX = inputs.m_joyconR.GetStick()[1] * Time.deltaTime * cameraSensitivity * 5;
         float inputY = inputs.m_joyconR.GetStick()[0] * Time.deltaTime * cameraSensitivity * 5;
-        xRot += inputX;
-        yRot -= inputY;
+        xLookRot += inputX;
+        yLookRot -= inputY;
 
-        playerCamera.transform.rotation = Quaternion.Euler(Mathf.Clamp(-xRot, -90f, 90f), -yRot, 0); //cam
-        transform.rotation = Quaternion.Euler(0, -yRot, 0); //body
+        playerCamera.transform.rotation = Quaternion.Euler(Mathf.Clamp(-xLookRot, -90f, 90f), -yLookRot, 0); //cam
+        transform.rotation = Quaternion.Euler(0, -yLookRot, 0); //body
     }
 
     private void UpdateMovement()
@@ -63,13 +76,13 @@ public class PlayerController : MonoBehaviour
         charController.SimpleMove(movementSpeed * direction.normalized);
     }
 
-    private void UpdateHands()
+    private void UpdateArmRotations()
     {
         armLeft.transform.localRotation = new Quaternion(inputs.m_joyconL.GetVector().x, 0, -inputs.m_joyconL.GetVector().z, inputs.m_joyconL.GetVector().w);
         armRight.transform.localRotation = new Quaternion(inputs.m_joyconR.GetVector().x, 0, -inputs.m_joyconR.GetVector().z, inputs.m_joyconR.GetVector().w);
     }
 
-    private void ResetHandPositions() // Unsure if it works
+    private void ResetHandPositions() // Reorientates the 'forward pose' of the joycons during play, helpful for realigning drifted/offset motion controls
     {
         if (inputs.m_pressedButtonL == Joycon.Button.DPAD_DOWN)
         {
@@ -81,5 +94,49 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void GrabDropObject()
+    {
+        if (inputs.m_pressedButtonL == Joycon.Button.SHOULDER_2)
+        {
+            // Grab with left hand
+
+        }
+        else
+        {
+            // Drop with left hand
+        }
+
+        if (inputs.m_pressedButtonR == Joycon.Button.SHOULDER_2)
+        {
+            // Grab with right hand
+        }
+        else
+        {
+            // Drop with right hand
+        }
+    }
+
+    private void GoHerePing() // Fix this!! Currently the transform is totally broken for hand pointing and raycasts do not always fire for some reason.
+    {
+        if (inputs.m_pressedButtonL == Joycon.Button.SHOULDER_1 || inputs.m_pressedButtonR == Joycon.Button.SHOULDER_1)
+        {
+            var agent = FindObjectOfType<AiController>(); // Replace with solid reference
+
+            if (Physics.Raycast(fingersLeft.transform.position, fingersLeft.transform.right, out RaycastHit ray, 50.0F, 1)) // Check ground layer object to ping NPC to move to
+            {
+                Debug.DrawLine(fingersLeft.transform.position, fingersLeft.transform.right * 50.0F, Color.green, 5.0F);
+                agent.AgentGoTo(ray.transform.position);
+                if (pingCount == 0)
+                {
+                    Instantiate(pingToken, ray.transform.position, Quaternion.identity);
+                    pingCount += 1;
+                }
+            }
+        }
+        else 
+        { 
+            pingCount = 0; 
+        }
+    }
 }
 
