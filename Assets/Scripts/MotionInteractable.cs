@@ -6,8 +6,6 @@ public interface IInteractable
 {
     void Activate();
     void Deactivate();
-
-
 }
 
 public class MotionInteractable : MonoBehaviour, IInteractable
@@ -15,20 +13,20 @@ public class MotionInteractable : MonoBehaviour, IInteractable
 
     [SerializeField] private GameObject UiPrompt;
     private GameObject uiPrompt_temp;
-    private int uiCount = 0;
+    private bool uiEnabled = false;
 
     private void Awake()
     {
-        Physics.IgnoreLayerCollision(6, 8, true);
+        //Physics.IgnoreLayerCollision(6, 8, true);
     }
 
     public void Activate()
     {
         Debug.Log("Activated interactable");
-        if(uiCount == 0)
+        if(!uiEnabled)
         {
             uiPrompt_temp = Instantiate(UiPrompt);
-            uiCount += 1;
+            uiEnabled = true;
         }
     }
 
@@ -36,6 +34,6 @@ public class MotionInteractable : MonoBehaviour, IInteractable
     {
         Debug.Log("Deactivated interactable");
         Destroy(uiPrompt_temp);
-        uiCount = 0;
+        uiEnabled = false;
     }
 }

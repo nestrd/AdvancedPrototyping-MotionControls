@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Grabbable
   - Ground
+  - Interactive
   layers:
   - Default
   - TransparentFX

@@ -24,7 +24,6 @@ public class HandController : MonoBehaviour
         {
             Debug.Log("Button pressed");
             GrabWithHand();
-
         }
         else
         {
@@ -39,10 +38,6 @@ public class HandController : MonoBehaviour
         {
             DropWithHand();
         }
-        //if (playerController.inputs.m_pressedButtonL == Joycon.Button.SHOULDER_1 && isLeft)
-        //{
-        //    GoHere();
-        //}
     }
 
     private void OnTriggerStay(Collider other)
@@ -81,27 +76,7 @@ public class HandController : MonoBehaviour
             //heldObject.transform.parent = null;
             //heldObject.GetComponent<IInteractable>().Deactivate();
             heldObject.SendMessage("Deactivate");
-        }
-    }
-
-    public void GoHere()
-    {
-        var agent = FindObjectOfType<AiController>();
-        RaycastHit ray;
-        int instantiateCount = 0;
-
-        if (Physics.Raycast(transform.position, transform.right, out ray, 100.0F, 9))
-        {
-            Debug.DrawLine(transform.position, -transform.up * 100.0F, Color.green, 5.0F);
-            Debug.DrawLine(transform.position, transform.forward * 100.0F, Color.red, 5.0F);
-            Debug.DrawLine(transform.position, transform.right * 100.0F, Color.blue, 5.0F);
-
-            agent.AgentGoTo(ray.transform.position);
-            if(instantiateCount == 0)
-            {
-                //Instantiate(pingToken, ray.transform);
-                instantiateCount += 1;
-            }
+            heldObject = null;
         }
     }
 }

@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.Events;
 
 public class PlayerController : MonoBehaviour
 {
 
     [HideInInspector] public JoyconInputs inputs;
+    private AiController agent;
     
     // Player camera
     private GameObject playerCamera;
@@ -20,11 +22,12 @@ public class PlayerController : MonoBehaviour
     [Range(0.0f, 100.0f)] public float movementSpeed = 50.0f;
 
     // Player arms
-    [SerializeField] private GameObject armLeft;
-    [SerializeField] private GameObject fingersLeft;
-    [SerializeField] private GameObject armRight;
+    [SerializeField] private HandController leftHand;
+    [SerializeField] private GameObject ShoulderLeft;
+    [SerializeField] private HandController rightHand;
+    [SerializeField] private GameObject ShoulderRight;
     [SerializeField] private GameObject pingToken;
-    int pingCount = 0;
+    private bool canPing = true;
     [HideInInspector] public bool interacting;
 
     void Awake()
@@ -32,6 +35,7 @@ public class PlayerController : MonoBehaviour
         inputs = GetComponent<JoyconInputs>();
         playerCamera = GetComponentInChildren<Camera>().gameObject;
         charController = GetComponent<CharacterController>();
+        agent = FindObjectOfType<AiController>();
     }
 
     void FixedUpdate()
@@ -52,6 +56,7 @@ public class PlayerController : MonoBehaviour
 
             UpdateArmRotations();
             ResetHandPositions();
+            GrabReleaseObject();
 
         }
 
@@ -78,8 +83,8 @@ public class PlayerController : MonoBehaviour
 
     private void UpdateArmRotations()
     {
-        armLeft.transform.localRotation = new Quaternion(inputs.m_joyconL.GetVector().x, 0, -inputs.m_joyconL.GetVector().z, inputs.m_joyconL.GetVector().w);
-        armRight.transform.localRotation = new Quaternion(inputs.m_joyconR.GetVector().x, 0, -inputs.m_joyconR.GetVector().z, inputs.m_joyconR.GetVector().w);
+        ShoulderLeft.transform.localRotation = new Quaternion(inputs.m_joyconL.GetVector().x, 0, -inputs.m_joyconL.GetVector().z, inputs.m_joyconL.GetVector().w);
+        ShoulderRight.transform.localRotation = new Quaternion(inputs.m_joyconR.GetVector().x, 0, -inputs.m_joyconR.GetVector().z, inputs.m_joyconR.GetVector().w);
     }
 
     private void ResetHandPositions() // Reorientates the 'forward pose' of the joycons during play, helpful for realigning drifted/offset motion controls
@@ -94,7 +99,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void GrabDropObject()
+    private void GrabReleaseObject()
     {
         if (inputs.m_pressedButtonL == Joycon.Button.SHOULDER_2)
         {
@@ -116,27 +121,35 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void GoHerePing() // Fix this!! Currently the transform is totally broken for hand pointing and raycasts do not always fire for some reason.
+    private void GoHerePing() // Raycast outward to hitpoint from each hand. Hitpoint determines AI destination. 
     {
-        if (inputs.m_pressedButtonL == Joycon.Button.SHOULDER_1 || inputs.m_pressedButtonR == Joycon.Button.SHOULDER_1)
+        if (inputs.m_pressedButtonL == Joycon.Button.SHOULDER_1 && canPing)
         {
-            var agent = FindObjectOfType<AiController>(); // Replace with solid reference
-
-            if (Physics.Raycast(fingersLeft.transform.position, fingersLeft.transform.right, out RaycastHit ray, 50.0F, 1)) // Check ground layer object to ping NPC to move to
+            if (Physics.Raycast(leftHand.transform.position, -leftHand.transform.up, out RaycastHit ray, 100.0F)) // Check ground layer object to ping NPC to move to
             {
-                Debug.DrawLine(fingersLeft.transform.position, fingersLeft.transform.right * 50.0F, Color.green, 5.0F);
-                agent.AgentGoTo(ray.transform.position);
-                if (pingCount == 0)
-                {
-                    Instantiate(pingToken, ray.transform.position, Quaternion.identity);
-                    pingCount += 1;
-                }
+                //Debug.DrawLine(leftHand.transform.position, ray.point, Color.green, 2.0F);
+                agent.AgentGoTo(ray.point);
+                StartCoroutine(PingTimer());
             }
         }
-        else 
-        { 
-            pingCount = 0; 
+        if(inputs.m_pressedButtonR == Joycon.Button.SHOULDER_1 && canPing)
+        {
+            if (Physics.Raycast(rightHand.transform.position, -rightHand.transform.up, out RaycastHit ray, 100.0F)) // Check ground layer object to ping NPC to move to
+            {
+                //Debug.DrawLine(rightHand.transform.position, ray.point, Color.green, 2.0F);
+                agent.AgentGoTo(ray.point);
+                StartCoroutine(PingTimer());
+            }
         }
     }
+
+    IEnumerator PingTimer()
+    {
+        canPing = false;
+        var _pos = agent.GetComponent<NavMeshAgent>().destination + new Vector3 (0,5,0);
+        Instantiate(pingToken, _pos, Quaternion.identity);
+        yield return new WaitForSeconds(1.0F);
+        canPing = true;
+    } // Timer for when next ping token can be placed, reevaluates AI path destination and route.
 }
 
