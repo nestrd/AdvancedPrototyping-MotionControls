@@ -4,36 +4,56 @@ using UnityEngine;
 
 public interface IInteractable
 {
-    void Activate();
+    void Activate(Transform input);
     void Deactivate();
 }
 
 public class MotionInteractable : MonoBehaviour, IInteractable
 {
-
     [SerializeField] private GameObject UiPrompt;
     private GameObject uiPrompt_temp;
-    private bool uiEnabled = false;
+    private bool activated = false;
+    [SerializeField] private GameObject pivotPoint;
+    private Transform playerHand;
+    private enum RotationType{
+        HORIZONTALROT, VERTICALROT
+    }
+    [SerializeField] private RotationType rotationType;
 
-    private void Awake()
+    private void FixedUpdate()
     {
-        //Physics.IgnoreLayerCollision(6, 8, true);
+        if(activated)
+        {
+            switch (rotationType)
+            {
+                case RotationType.HORIZONTALROT:
+                    pivotPoint.transform.Rotate(transform.right, playerHand.rotation.x);
+                    break;
+                case RotationType.VERTICALROT:
+                    pivotPoint.transform.Rotate(transform.up, playerHand.rotation.z);
+                    break;
+                default: return;
+            }
+        }
     }
 
-    public void Activate()
+    public void Activate(Transform input)
     {
-        Debug.Log("Activated interactable");
-        if(!uiEnabled)
+        if(!activated)
         {
             uiPrompt_temp = Instantiate(UiPrompt);
-            uiEnabled = true;
+            playerHand = input;
+            activated = true;
         }
     }
 
     public void Deactivate()
     {
-        Debug.Log("Deactivated interactable");
-        Destroy(uiPrompt_temp);
-        uiEnabled = false;
+        if (activated)
+        {
+            Destroy(uiPrompt_temp);
+            activated = false;
+            playerHand = null;
+        }
     }
 }

@@ -14,7 +14,7 @@ public class AiController : MonoBehaviour
         playerRef = FindObjectOfType<PlayerController>();
         agent = GetComponent<NavMeshAgent>();
 
-        AgentGoTo(playerRef.transform.position);
+        //AgentGoTo(playerRef.transform.position);
     }
 
     void AgentIdle()

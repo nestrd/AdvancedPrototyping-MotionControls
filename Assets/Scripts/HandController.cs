@@ -1,14 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.AI;
 
 public class HandController : MonoBehaviour
 {
-
     private PlayerController playerController;
-
+    [SerializeField] private Transform upperArm;
     public GameObject heldObject;
     public GameObject handPivot;
     [SerializeField] private bool isLeft;
@@ -18,31 +13,24 @@ public class HandController : MonoBehaviour
         playerController = GetComponentInParent<PlayerController>();
     }
 
-    private void FixedUpdate()
+    private void OnTriggerEnter(Collider other)
     {
-        if (playerController.inputs.m_pressedButtonL == Joycon.Button.SHOULDER_2 && isLeft)
+        if (other.gameObject.CompareTag("Grabbable") || other.gameObject.CompareTag("Interactive"))
         {
-            Debug.Log("Button pressed");
-            GrabWithHand();
-        }
-        else
-        {
-            DropWithHand();
-        }
-        if (playerController.inputs.m_pressedButtonR == Joycon.Button.SHOULDER_2 && !isLeft)
-        {
-            Debug.Log("Button pressed");
-            GrabWithHand();
-        }
-        else
-        {
-            DropWithHand();
+            if(isLeft)
+            {
+                playerController.inputs.m_joyconL.SetRumble(100, 100, 0.6f, 200);
+            }
+            if (!isLeft)
+            {
+                playerController.inputs.m_joyconR.SetRumble(100, 100, 0.6f, 200);
+            }
         }
     }
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.gameObject.CompareTag("Grabbable"))
+        if (other.gameObject.CompareTag("Grabbable") || other.gameObject.CompareTag("Interactive"))
         {
             heldObject = other.gameObject;
         }
@@ -54,30 +42,34 @@ public class HandController : MonoBehaviour
 
     public void GrabWithHand()
     {
-        var newGrab = false;
-
-        if (heldObject != null && !newGrab)
+        if (heldObject != null)
         {
-            heldObject.GetComponent<Rigidbody>().isKinematic = true;
-            heldObject.GetComponent<Rigidbody>().MovePosition(handPivot.transform.position);
-            //heldObject.transform.SetParent(handPivot.transform, false);
-            Physics.IgnoreCollision(heldObject.GetComponent<BoxCollider>(), playerController.GetComponent<CharacterController>());
-            heldObject.GetComponent<IInteractable>().Activate();
-            heldObject.SendMessage("Activate");
-            newGrab = true;
+            Physics.IgnoreCollision(heldObject.GetComponent<Collider>(), playerController.GetComponent<Collider>(), true);
+            if (heldObject.GetComponent<MonoBehaviour>() is not IInteractable)
+            {
+                heldObject.GetComponent<Rigidbody>().isKinematic = true;
+                heldObject.GetComponent<Rigidbody>().Move(handPivot.transform.position, handPivot.transform.rotation);
+            }
+            if (heldObject.GetComponent<MonoBehaviour>() is IInteractable)
+            {
+                heldObject.SendMessage("Activate", upperArm);
+            }
         }
     }
-
     public void DropWithHand()
     {
         if (heldObject != null)
         {
-            heldObject.GetComponent<Rigidbody>().isKinematic = false;
-            //heldObject.transform.parent = null;
-            //heldObject.GetComponent<IInteractable>().Deactivate();
-            heldObject.SendMessage("Deactivate");
+            if(heldObject.GetComponent<MonoBehaviour>() is not IInteractable)
+            {
+                Physics.IgnoreCollision(heldObject.GetComponent<Collider>(), playerController.GetComponent<Collider>(), false);
+                heldObject.GetComponent<Rigidbody>().isKinematic = false;
+            }
+            if(heldObject.GetComponent<MonoBehaviour>() is IInteractable)
+            {
+                heldObject.SendMessage("Deactivate");
+            }
             heldObject = null;
         }
     }
 }
-

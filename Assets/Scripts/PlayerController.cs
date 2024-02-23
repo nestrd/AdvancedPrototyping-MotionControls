@@ -3,31 +3,38 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Events;
+using UnityEditor;
+using Unity.VisualScripting;
+using System;
 
 public class PlayerController : MonoBehaviour
 {
-
     [HideInInspector] public JoyconInputs inputs;
     private AiController agent;
-    
-    // Player camera
-    private GameObject playerCamera;
+    private bool controllerCheck;
+    [SerializeField] private UiManager uiRef;
+
+    [HeaderAttribute("PLAYER CAMERA", order = 0)]
     [SerializeField] private Transform playerCameraPos;
-    [Range(0.0f, 100.0f)] public float cameraSensitivity = 2.0f;
+    [SerializeField][Range(0.0f, 100.0f)] public float cameraSensitivity = 2.0f;
+    private GameObject playerCamera;
     private float xLookRot;
     private float yLookRot;
 
-    // Player physics
+    [HeaderAttribute("PHYSICS SETTINGS", order = 1)]
+    [SerializeField][Range(0.0f, 100.0f)] public float movementSpeed = 50.0f;
     private CharacterController charController;
-    [Range(0.0f, 100.0f)] public float movementSpeed = 50.0f;
 
-    // Player arms
+    [HeaderAttribute("ARMS/HANDS SETUP", order = 2)]
     [SerializeField] private HandController leftHand;
     [SerializeField] private GameObject ShoulderLeft;
     [SerializeField] private HandController rightHand;
     [SerializeField] private GameObject ShoulderRight;
     [SerializeField] private GameObject pingToken;
     private bool canPing = true;
+
+    [HeaderAttribute("INTERACTION SYSTEM", order = 3)]
+    [SerializeField] public GameObject interactingObject = null;
     [HideInInspector] public bool interacting;
 
     void Awake()
@@ -36,17 +43,23 @@ public class PlayerController : MonoBehaviour
         playerCamera = GetComponentInChildren<Camera>().gameObject;
         charController = GetComponent<CharacterController>();
         agent = FindObjectOfType<AiController>();
+
+        IntPtr ptr = HIDapi.hid_enumerate(0x57e, 0x0);
+
+        if (ptr == IntPtr.Zero)
+        {
+            ptr = HIDapi.hid_enumerate(0x057e, 0x0);
+            if (ptr == IntPtr.Zero)
+            {
+                controllerCheck = false;
+            }
+        }
     }
 
     void FixedUpdate()
     {
         if (inputs.m_joycons != null && inputs.m_joyconL != null) // remove second half if broken!
         {
-            if (inputs.m_pressedButtonR == Joycon.Button.DPAD_RIGHT)
-            {
-                Debug.Log("Interact button pressed");
-            }
-
             if (!interacting) // When interacting with 'MotionInteractable' objects, look and movement are disabled to prevent frustrating gameplay experiences
             {
                 UpdateLook();
@@ -59,7 +72,17 @@ public class PlayerController : MonoBehaviour
             GrabReleaseObject();
 
         }
-
+        if(!controllerCheck)
+        {
+            Time.timeScale = 0F;
+            
+            uiRef.SetAnimationState(1);
+        }
+        else
+        {
+            Time.timeScale = 1F;
+            uiRef.SetAnimationState(0);
+        }
     }
 
     private void UpdateLook()
@@ -76,8 +99,6 @@ public class PlayerController : MonoBehaviour
     private void UpdateMovement()
     {
         Vector3 direction = (charController.transform.forward * inputs.m_joyconL.GetStick()[1]) + (charController.transform.right * inputs.m_joyconL.GetStick()[0]);
-         
-        //playerRB.AddForce(10000 * movementSpeed * Time.deltaTime * direction.normalized, ForceMode.Force);
         charController.SimpleMove(movementSpeed * direction.normalized);
     }
 
@@ -101,23 +122,21 @@ public class PlayerController : MonoBehaviour
 
     private void GrabReleaseObject()
     {
-        if (inputs.m_pressedButtonL == Joycon.Button.SHOULDER_2)
+        if (inputs.m_pressedButtonL == Joycon.Button.SHOULDER_2) // Grab and drop with left hand
         {
-            // Grab with left hand
-
+            leftHand.GrabWithHand();
         }
         else
         {
-            // Drop with left hand
+            leftHand.DropWithHand();
         }
-
-        if (inputs.m_pressedButtonR == Joycon.Button.SHOULDER_2)
+        if (inputs.m_pressedButtonR == Joycon.Button.SHOULDER_2) // Grab and drop with right hand
         {
-            // Grab with right hand
+            rightHand.GrabWithHand();
         }
         else
         {
-            // Drop with right hand
+            rightHand.DropWithHand();
         }
     }
 
@@ -152,4 +171,3 @@ public class PlayerController : MonoBehaviour
         canPing = true;
     } // Timer for when next ping token can be placed, reevaluates AI path destination and route.
 }
-
