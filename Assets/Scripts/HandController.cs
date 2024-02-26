@@ -53,6 +53,7 @@ public class HandController : MonoBehaviour
             if (heldObject.GetComponent<MonoBehaviour>() is IInteractable)
             {
                 heldObject.SendMessage("Activate", upperArm);
+                //playerController.interacting = true;
             }
         }
     }
@@ -68,6 +69,7 @@ public class HandController : MonoBehaviour
             if(heldObject.GetComponent<MonoBehaviour>() is IInteractable)
             {
                 heldObject.SendMessage("Deactivate");
+                playerController.interacting = false;
             }
             heldObject = null;
         }

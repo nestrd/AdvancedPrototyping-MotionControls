@@ -11,7 +11,7 @@ public class PlayerController : MonoBehaviour
 {
     [HideInInspector] public JoyconInputs inputs;
     private AiController agent;
-    private bool controllerCheck;
+    private bool controllerCheck = false;
     [SerializeField] private UiManager uiRef;
 
     [HeaderAttribute("PLAYER CAMERA", order = 0)]
@@ -43,17 +43,6 @@ public class PlayerController : MonoBehaviour
         playerCamera = GetComponentInChildren<Camera>().gameObject;
         charController = GetComponent<CharacterController>();
         agent = FindObjectOfType<AiController>();
-
-        IntPtr ptr = HIDapi.hid_enumerate(0x57e, 0x0);
-
-        if (ptr == IntPtr.Zero)
-        {
-            ptr = HIDapi.hid_enumerate(0x057e, 0x0);
-            if (ptr == IntPtr.Zero)
-            {
-                controllerCheck = false;
-            }
-        }
     }
 
     void FixedUpdate()
@@ -62,16 +51,17 @@ public class PlayerController : MonoBehaviour
         {
             if (!interacting) // When interacting with 'MotionInteractable' objects, look and movement are disabled to prevent frustrating gameplay experiences
             {
-                UpdateLook();
                 UpdateMovement();
                 GoHerePing();
             }
 
+            UpdateLook();
             UpdateArmRotations();
             ResetHandPositions();
             GrabReleaseObject();
 
         }
+        ControllerCheck();
         if(!controllerCheck)
         {
             Time.timeScale = 0F;
@@ -82,6 +72,24 @@ public class PlayerController : MonoBehaviour
         {
             Time.timeScale = 1F;
             uiRef.SetAnimationState(0);
+        }
+    }
+
+    private void ControllerCheck()
+    {
+        IntPtr ptr = HIDapi.hid_enumerate(0x57e, 0x0);
+
+        if (ptr == IntPtr.Zero)
+        {
+            ptr = HIDapi.hid_enumerate(0x057e, 0x0);
+            if (ptr == IntPtr.Zero)
+            {
+                controllerCheck = false;
+            }
+        }
+        else
+        {
+            controllerCheck = true;
         }
     }
 
