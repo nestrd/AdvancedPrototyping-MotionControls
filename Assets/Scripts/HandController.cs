@@ -13,7 +13,7 @@ public class HandController : MonoBehaviour
         playerController = GetComponentInParent<PlayerController>();
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other) // Haptics for interaction overlaps, confirms for player
     {
         if (other.gameObject.CompareTag("Grabbable") || other.gameObject.CompareTag("Interactive"))
         {
@@ -45,14 +45,14 @@ public class HandController : MonoBehaviour
         if (heldObject != null)
         {
             Physics.IgnoreCollision(heldObject.GetComponent<Collider>(), playerController.GetComponent<Collider>(), true);
-            if (heldObject.GetComponent<MonoBehaviour>() is not IInteractable)
+            if (heldObject.GetComponent<MonoBehaviour>() is not IInteractable) // Grabbing code
             {
                 heldObject.GetComponent<Rigidbody>().isKinematic = true;
                 heldObject.GetComponent<Rigidbody>().Move(handPivot.transform.position, handPivot.transform.rotation);
             }
-            if (heldObject.GetComponent<MonoBehaviour>() is IInteractable)
+            if (heldObject.GetComponent<MonoBehaviour>() is IInteractable) // Interacting code, does the script implement Interactable interface?
             {
-                heldObject.SendMessage("Activate", upperArm);
+                heldObject.SendMessage("Activate", handPivot.transform);
                 //playerController.interacting = true;
             }
         }
@@ -61,12 +61,12 @@ public class HandController : MonoBehaviour
     {
         if (heldObject != null)
         {
-            if(heldObject.GetComponent<MonoBehaviour>() is not IInteractable)
+            if(heldObject.GetComponent<MonoBehaviour>() is not IInteractable) // Grabbing code
             {
                 Physics.IgnoreCollision(heldObject.GetComponent<Collider>(), playerController.GetComponent<Collider>(), false);
                 heldObject.GetComponent<Rigidbody>().isKinematic = false;
             }
-            if(heldObject.GetComponent<MonoBehaviour>() is IInteractable)
+            if(heldObject.GetComponent<MonoBehaviour>() is IInteractable) // Interacting code, does the script implement Interactable interface?
             {
                 heldObject.SendMessage("Deactivate");
                 playerController.interacting = false;

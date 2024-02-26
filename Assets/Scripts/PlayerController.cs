@@ -86,10 +86,16 @@ public class PlayerController : MonoBehaviour
             {
                 controllerCheck = false;
             }
+            else
+            {
+                controllerCheck = true;
+                Time.timeScale = 1F;
+            }
         }
         else
         {
             controllerCheck = true;
+            Time.timeScale = 1F;
         }
     }
 

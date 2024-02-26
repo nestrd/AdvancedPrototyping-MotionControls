@@ -24,6 +24,7 @@ public class InteractivePad : MonoBehaviour
         if (collision.gameObject.CompareTag("Player"))
         {
             characterRef = collision.gameObject;
+            Debug.Log("Stepped on");
             if (!canActivate)
             {
                 activatingDoor.AddToActivated(1);
