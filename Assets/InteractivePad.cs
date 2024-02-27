@@ -21,7 +21,7 @@ public class InteractivePad : MonoBehaviour
 
     private void OnTriggerEnter(Collider collision)
     {
-        if (collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Grabbable"))
+        if (collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("NPC") || collision.gameObject.CompareTag("Grabbable"))
         {
             characterRef = collision.gameObject;
             Debug.Log("Stepped on");

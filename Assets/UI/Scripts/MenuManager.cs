@@ -8,6 +8,7 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private JoyconInputs inputs;
     [SerializeField] private AudioSource audioL;
     [SerializeField] private AudioSource audioR;
+    [SerializeField] private Animator menuFade;
 
     public Image leftIcon;
     private Sprite leftInactive;
@@ -69,6 +70,7 @@ public class MenuManager : MonoBehaviour
 
     private IEnumerator EnterGame(float timeToStart)
     {
+        menuFade.SetBool("Active", true);
         float timer = 0F;
         while(timer < timeToStart)
         {

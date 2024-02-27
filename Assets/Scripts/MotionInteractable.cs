@@ -101,8 +101,8 @@ public class MotionInteractable : MonoBehaviour, IInteractable
                     if (approxValue && !puzzleSuccess)
                     {
                         activatingDoor.AddToActivated(1);
-                        playerRef.inputs.m_joyconL.SetRumble(150, 150, 2f, 200);
-                        playerRef.inputs.m_joyconR.SetRumble(150, 150, 2f, 200);
+                        playerRef.inputs.m_joyconL.SetRumble(160, 320, 0.6f, 200);
+                        playerRef.inputs.m_joyconR.SetRumble(160, 320, 0.6f, 200);
                         puzzleSuccess = true;
                     }
 

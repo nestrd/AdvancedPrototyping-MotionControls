@@ -13,7 +13,7 @@ public class InteractiveGrabCube : MonoBehaviour
         if(collision.relativeVelocity.magnitude > 1)
         {
             float pitchVariance = Random.Range(0.8F, 1.2F);
-            float normalizedMag = Mathf.Clamp01(collision.relativeVelocity.magnitude);
+            float normalizedMag = Mathf.Clamp01(collision.relativeVelocity.magnitude) * 0.5f;
             sound.volume = normalizedMag;
             sound.pitch = pitchVariance;
             sound.Play();
