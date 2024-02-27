@@ -1,4 +1,7 @@
+using System;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class HandController : MonoBehaviour
 {
@@ -52,8 +55,11 @@ public class HandController : MonoBehaviour
             }
             if (heldObject.GetComponent<MonoBehaviour>() is IInteractable) // Interacting code, does the script implement Interactable interface?
             {
-                heldObject.SendMessage("Activate", handPivot.transform);
-                //playerController.interacting = true;
+                playerController.interacting = true;
+                GameObject[] tempArray = new GameObject[2];
+                tempArray[0] = handPivot;
+                tempArray[1] = playerController.gameObject;
+                heldObject.SendMessage("Activate", tempArray);
             }
         }
     }

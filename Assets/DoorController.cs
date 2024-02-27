@@ -9,10 +9,12 @@ public class DoorController : MonoBehaviour
     private int activatorCount;
     private int simultaneousActivates;
     [SerializeField] private int requiredActivates = 2;
+    private AudioSource audioToPlay;
 
     private void Awake()
     {
         animRef = GetComponent<Animator>();
+        audioToPlay = GetComponent<AudioSource>();
     }
 
     public void Activator()
@@ -39,6 +41,7 @@ public class DoorController : MonoBehaviour
         if (opening)
         {
             animRef.SetBool("openDoor", true);
+            audioToPlay.Play();
         }
         else
         {

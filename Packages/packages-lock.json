@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.pulni.editor-tools": {
+      "version": "https://github.com/pulni4kiya/unity-editor-tools.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "0e78c564e6622ac489a817b9a636e3cd07996046"
+    },
     "com.unity.ai.navigation": {
       "version": "1.1.5",
       "depth": 0,

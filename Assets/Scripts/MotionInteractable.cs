@@ -5,40 +5,50 @@ using UnityEngine;
 
 public interface IInteractable
 {
-    void Activate(GameObject interactor);
+    void Activate(GameObject[] inputs);
     void Deactivate();
 }
 
 public class MotionInteractable : MonoBehaviour, IInteractable
 {
+    [HeaderAttribute("GENERAL SETUP", order = 0)]
     [SerializeField] private GameObject UiPrompt;
     private GameObject uiPrompt_temp;
+    [SerializeField] private DoorController activatingDoor;
     private bool activated = false;
+    bool puzzleSuccess = false;
+
+    [HeaderAttribute("INTERFACE DATA", order = 1)]
+    [SerializeField] private PlayerController playerRef;
+    [SerializeField] private GameObject handRef;
+    [SerializeField] private Transform playerHand;
+
+    [HeaderAttribute("ROTATION DATA", order = 2)]
     [SerializeField] private GameObject pivotPoint;
     private Rigidbody pivotRb;
-    private Transform playerHand;
-    [SerializeField] Transform directionRef;
-    float successAngle = 4.0F;
-    bool puzzleSuccess = false;
+    [SerializeField] private Transform directionRef;
+    [SerializeField][Range(0.0f, 360.0f)] private float successAngle = 35.0F; // WARNING: Rotations from forward position wrap from 0 to 360!
+    [SerializeField][Range(0.0f, 360.0f)] private float minAngle;
+    [SerializeField][Range(0.0f, 360.0f)] private float maxAngle;
     private enum RotationType
     {
         HORIZONTALROT, VERTICALROT, TESTROT
     }
     [SerializeField] private RotationType rotationType;
-    [SerializeField] private float minAngle = -5;
-    [SerializeField] private float maxAngle = -9;
 
     void Awake()
     {
         pivotRb = pivotPoint.GetComponent<Rigidbody>();
     }
 
-    public void Activate(GameObject interactor)
+    public void Activate(GameObject[] inputs)
     {
-        if (!activated)
+        if (!activated && !puzzleSuccess)
         {
             uiPrompt_temp = Instantiate(UiPrompt);
-            playerHand = interactor.transform;
+            handRef = inputs[0];
+            playerHand = inputs[0].transform;
+            playerRef = inputs[1].gameObject.GetComponent<PlayerController>();
             activated = true;
         }
     }
@@ -77,19 +87,22 @@ public class MotionInteractable : MonoBehaviour, IInteractable
                     var vertInput = Quaternion.Euler(0, roundedVert, 0);
                     pivotRb.MoveRotation(transform.rotation * vertInput);
                     break;
-                case RotationType.TESTROT:
+                case RotationType.TESTROT: // Up-down test rotation
                     Vector3 targetDir = Vector3.ProjectOnPlane(playerHand.position - pivotRb.transform.position, directionRef.forward);
-                    pivotRb.transform.up = targetDir;
+                    pivotRb.transform.up = targetDir; // Project on a plane and set the up transform to the result
 
-                    Vector3 clampedDir = new Vector3
-                        (Mathf.Clamp(targetDir.x, minAngle, maxAngle),
-                        targetDir.y, targetDir.z);
-                    pivotRb.rotation = Quaternion.Euler(clampedDir);
+                    Vector3 clampedRot = new Vector3 // Clamp the appropriate axis between a min and max angle
+                        (pivotRb.transform.localRotation.eulerAngles.x, 
+                        pivotRb.transform.localRotation.eulerAngles.y, 
+                        Mathf.Clamp(pivotRb.transform.localRotation.eulerAngles.z, minAngle, maxAngle));
+                    pivotRb.MoveRotation(Quaternion.Euler(clampedRot));
 
-                    bool approxValue = Math.Abs((pivotRb.rotation.z * 360 ) - successAngle) < 0.1F;
-                    if (approxValue)
+                    bool approxValue = Math.Abs(pivotRb.transform.localRotation.eulerAngles.z - successAngle) < 2.0F; 
+                    if (approxValue && !puzzleSuccess)
                     {
-                        Debug.Log("Success!");
+                        activatingDoor.AddToActivated(1);
+                        playerRef.inputs.m_joyconL.SetRumble(150, 150, 2f, 200);
+                        playerRef.inputs.m_joyconR.SetRumble(150, 150, 2f, 200);
                         puzzleSuccess = true;
                     }
 
@@ -111,4 +124,6 @@ public class MotionInteractable : MonoBehaviour, IInteractable
             pivotRb.MoveRotation(pivotPoint.transform.localRotation * inverseRot);
         }
     }
+
+
 }

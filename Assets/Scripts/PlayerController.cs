@@ -1,10 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Events;
-using UnityEditor;
-using Unity.VisualScripting;
 using System;
 
 public class PlayerController : MonoBehaviour
@@ -13,6 +9,7 @@ public class PlayerController : MonoBehaviour
     private AiController agent;
     private bool controllerCheck = false;
     [SerializeField] private UiManager uiRef;
+    private AudioSource footstepAudio;
 
     [HeaderAttribute("PLAYER CAMERA", order = 0)]
     [SerializeField] private Transform playerCameraPos;
@@ -43,6 +40,7 @@ public class PlayerController : MonoBehaviour
         playerCamera = GetComponentInChildren<Camera>().gameObject;
         charController = GetComponent<CharacterController>();
         agent = FindObjectOfType<AiController>();
+        footstepAudio = GetComponent<AudioSource>();
     }
 
     void FixedUpdate()
@@ -114,7 +112,17 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 direction = (charController.transform.forward * inputs.m_joyconL.GetStick()[1]) + (charController.transform.right * inputs.m_joyconL.GetStick()[0]);
         charController.SimpleMove(movementSpeed * direction.normalized);
-    }
+        if(direction != Vector3.zero)
+        {
+            float pitchVariance = UnityEngine.Random.Range(0.3F, 0.55F);
+            footstepAudio.pitch = pitchVariance;
+            footstepAudio.enabled = true;
+        }
+        else
+        {
+            footstepAudio.enabled = false;
+        }
+    } 
 
     private void UpdateArmRotations()
     {

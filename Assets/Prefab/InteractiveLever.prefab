@@ -27,7 +27,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 707119483817560544}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: -0.17364825, w: 0.9848078}
+  m_LocalRotation: {x: 0, y: 0, z: -0.258819, w: 0.9659259}
   m_LocalPosition: {x: 0, y: 0.41600043, z: 0}
   m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 0
@@ -231,11 +231,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   UiPrompt: {fileID: 4217673521913526575, guid: c7011441e1b054c4da544a85fd4a8fb9, type: 3}
+  activatingDoor: {fileID: 0}
+  playerRef: {fileID: 0}
+  handRef: {fileID: 0}
+  playerHand: {fileID: 0}
   pivotPoint: {fileID: 707119483817560544}
   directionRef: {fileID: 5397250067282059134}
-  rotationType: 2
-  minAngle: 45
+  successAngle: 35
+  minAngle: 40
   maxAngle: 115
+  rotationType: 2
 --- !u!1 &5707240635498112375
 GameObject:
   m_ObjectHideFlags: 0
@@ -248,6 +253,7 @@ GameObject:
   - component: {fileID: 5629119825705468801}
   - component: {fileID: 4954287953278974572}
   - component: {fileID: 4116421331938553674}
+  - component: {fileID: 3631991256143429356}
   m_Layer: 6
   m_Name: InteractiveLever
   m_TagString: Untagged
@@ -343,6 +349,46 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3631991256143429356
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5707240635498112375}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1280a238cf17ad648bf3654f484ea1e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <ExposedPropertiesConfig>k__BackingField:
+    <IsReadOnly>k__BackingField: 0
+    <Properties>k__BackingField:
+    - Label: 
+      Target: {fileID: 3929972247719639982}
+      PropertyPath: 
+      IsReadOnly: 0
+      ShowChildren: 0
+    - Label: Rotation Type
+      Target: {fileID: 6966624197011643827}
+      PropertyPath: rotationType
+      IsReadOnly: 0
+      ShowChildren: 1
+    - Label: Ui Prompt
+      Target: {fileID: 6966624197011643827}
+      PropertyPath: UiPrompt
+      IsReadOnly: 0
+      ShowChildren: 1
+    - Label: Activating Door
+      Target: {fileID: 6966624197011643827}
+      PropertyPath: activatingDoor
+      IsReadOnly: 0
+      ShowChildren: 1
+    - Label: Success Angle
+      Target: {fileID: 6966624197011643827}
+      PropertyPath: successAngle
+      IsReadOnly: 0
+      ShowChildren: 1
 --- !u!1 &6670460301468125609
 GameObject:
   m_ObjectHideFlags: 0

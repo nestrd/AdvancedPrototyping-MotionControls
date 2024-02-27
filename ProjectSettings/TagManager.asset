@@ -18,8 +18,8 @@ TagManager:
   - Hand
   - Body
   - Ground
-  - 
-  - 
+  - AI
+  - GameplayObject
   - 
   - 
   - 
